@@ -97,6 +97,26 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
   return data
 }
 
+// Login con Google: envía credential y guarda token
+export async function googleLogin(credential: string): Promise<LoginResponse> {
+  const response = await fetch(`${API_URL}/api/v1/auth/google`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ credential })
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.detail || 'Error al iniciar sesión con Google')
+  }
+
+  const data = await response.json()
+  setToken(data.access_token)
+  return data
+}
+
 // Obtener datos del usuario actual (endpoint /me)
 export async function getCurrentUser(): Promise<Usuario> {
   const token = getToken()

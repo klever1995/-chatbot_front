@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from './services/auth'
+import { login, googleLogin } from './services/auth'
+import { GoogleLogin } from '@react-oauth/google'
 import './Login.css'
 
 export default function Login() {
@@ -21,6 +22,19 @@ export default function Login() {
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true)
+    setError('')
+    try {
+      await googleLogin(credentialResponse.credential)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.message || 'Error al iniciar sesión con Google')
     } finally {
       setLoading(false)
     }
@@ -62,6 +76,23 @@ export default function Login() {
           <button type="submit" disabled={loading}>
             {loading ? 'Iniciando...' : 'Ingresar'}
           </button>
+          
+          <div className="login-divider">
+            <span>o continúa con</span>
+          </div>
+
+          <div className="login-google-btn">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Error al conectar con Google')}
+              theme="filled_black"
+              shape="rectangular"
+              size="large"
+              text="signin_with"
+              locale="es"
+              width="100%"
+            />
+          </div>
         </form>
       </div>
     </div>
