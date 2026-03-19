@@ -1,0 +1,394 @@
+/* Estilos base del componente */
+.campanas {
+  all: initial;
+  display: block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.camp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.camp-titulo {
+  all: initial;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+/* Botón nuevo */
+.camp-btn-nuevo {
+  all: initial;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #3b82f6;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.camp-btn-nuevo:hover {
+  background: #2563eb;
+}
+
+.camp-btn-nuevo svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* Modal - completamente aislado */
+.camp-modal-overlay {
+  all: initial;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.camp-modal {
+  all: initial;
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+}
+
+.camp-modal-header {
+  all: initial;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eaeaea;
+  font-family: inherit;
+}
+
+.camp-modal-header h2 {
+  all: initial;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  font-family: inherit;
+}
+
+.camp-modal-cerrar {
+  all: initial;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 8px;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.camp-modal-cerrar:hover {
+  color: #111;
+}
+
+.camp-modal-body {
+  all: initial;
+  display: block;
+  padding: 20px;
+  font-family: inherit;
+}
+
+.camp-modal-footer {
+  all: initial;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid #eaeaea;
+  font-family: inherit;
+}
+
+/* Campos del formulario */
+.camp-campo {
+  all: initial;
+  display: block;
+  margin-bottom: 16px;
+  font-family: inherit;
+}
+
+.camp-campo label {
+  all: initial;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  font-family: inherit;
+}
+
+.camp-campo input,
+.camp-campo textarea {
+  all: initial;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111;
+  background: white;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.camp-campo input:focus,
+.camp-campo textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.camp-campo input[type="file"] {
+  padding: 6px 12px;
+  background: #f9f9f9;
+}
+
+/* Botones del modal */
+.camp-btn-primario {
+  all: initial;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-block;
+}
+
+.camp-btn-primario:hover {
+  background: #2563eb;
+}
+
+.camp-btn-secundario {
+  all: initial;
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-block;
+}
+
+.camp-btn-secundario:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+  color: #111;
+}
+
+/* Tabla */
+.camp-tabla-contenedor {
+  background: #111216;
+  border: 1px solid #2a2a30;
+  width: 100%;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.camp-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  min-width: 900px;
+}
+
+.camp-tabla th {
+  text-align: left;
+  padding: 16px;
+  background: #0f0f13;
+  color: #9aa0b0;
+  font-weight: 500;
+  border-bottom: 1px solid #2a2a30;
+}
+
+.camp-tabla td {
+  padding: 16px;
+  color: #e0e2e8;
+  border-bottom: 1px solid #2a2a30;
+  white-space: nowrap;
+  height: 60px;
+  line-height: 28px;
+  vertical-align: middle;
+}
+
+.camp-tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.camp-tabla tr:hover {
+  background: #1a1c24;
+}
+
+.camp-tabla th:nth-child(1) { width: 25%; }
+.camp-tabla th:nth-child(2) { width: 10%; }
+.camp-tabla th:nth-child(3) { width: 8%; }
+.camp-tabla th:nth-child(4) { width: 37%; }
+.camp-tabla th:nth-child(5) { width: 10%; }
+.camp-tabla th:nth-child(6) { width: 10%; }
+
+.camp-archivo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.camp-precio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.camp-mensaje {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.camp-acciones {
+  display: flex;
+  gap: 12px;
+}
+
+/* Botones icono */
+.camp-btn-icono {
+  all: initial;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  background: transparent;
+  border: none;
+  color: #9aa0b0;
+  margin: 0 0 0 4px;
+}
+
+.camp-btn-icono:hover {
+  background: #2a2a30;
+}
+
+.camp-btn-editar:hover {
+  color: #3b82f6;
+}
+
+/* Contenedores edición */
+.camp-display-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+.camp-display-container span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.camp-edit-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.camp-edit-input-precio {
+  width: 70px;
+  background: #1a1c24;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 4px 8px;
+  height: 28px;
+}
+
+.camp-edit-input-mensaje {
+  flex: 1;
+  background: #1a1c24;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 4px 8px;
+  height: 28px;
+}
+
+.camp-edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.camp-mensaje-texto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.camp-btn-guardar {
+  color: #10b981 !important;
+}
+
+.camp-btn-guardar:hover {
+  background: #1a2e2a !important;
+  color: #34d399 !important;
+}
+
+.camp-btn-cancelar {
+  color: #ef4444 !important;
+}
+
+.camp-btn-cancelar:hover {
+  background: #2a1c1c !important;
+  color: #f87171 !important;
+}

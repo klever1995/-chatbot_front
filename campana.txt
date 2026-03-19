@@ -1,0 +1,835 @@
+import { useState, useEffect, useRef } from 'react'
+import { Upload, Edit2, Trash2, DollarSign, MessageSquare, X, Save, File } from 'lucide-react'
+import { listarDocumentos, subirDocumento, eliminarDocumento, actualizarPrecio, actualizarMensaje } from '../services/documentos'
+import '../styles/Campanas.css'
+
+export default function Campanas() {
+  const [documentos, setDocumentos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [editingDoc, setEditingDoc] = useState(null)
+  const [replacingPdf, setReplacingPdf] = useState(null)
+  const fileInputRef = useRef(null)
+  const [formData, setFormData] = useState({
+    archivo: null,
+    campania_id: '',
+    mensaje_entrega: '',
+    precio: ''
+  })
+
+  const empresaId = 1 // Por ahora fijo, luego vendrá de configuración
+
+  useEffect(() => {
+    loadDocumentos()
+  }, [])
+
+  const loadDocumentos = async () => {
+    setLoading(true)
+    try {
+      const data = await listarDocumentos(empresaId)
+      setDocumentos(data)
+    } catch (error) {
+      console.error('Error loading documentos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubir = async () => {
+    if (!formData.archivo || !formData.campania_id || !formData.mensaje_entrega || !formData.precio) {
+      console.warn('Campos incompletos:', formData);
+      return;
+    }
+
+    console.log('🟢 handleSubir iniciado con:', {
+      archivo: formData.archivo?.name,
+      campania_id: formData.campania_id,
+      mensaje_entrega: formData.mensaje_entrega,
+      precio: formData.precio
+    });
+
+    try {
+      await subirDocumento(
+        empresaId,
+        formData.archivo,
+        formData.campania_id,
+        formData.mensaje_entrega,
+        parseFloat(formData.precio)
+      );
+      console.log('✅ Documento subido exitosamente');
+      setShowModal(false);
+      setFormData({ archivo: null, campania_id: '', mensaje_entrega: '', precio: '' });
+      loadDocumentos();
+    } catch (error) {
+      console.error('❌ Error en handleSubir:', error);
+      alert('Error al subir el documento. Revisa la consola para más detalles.');
+    }
+  };
+
+  const handleEliminar = async (id) => {
+    if (!confirm('¿Estás seguro de eliminar esta campaña?')) return
+    try {
+      await eliminarDocumento(id)
+      loadDocumentos()
+    } catch (error) {
+      console.error('Error eliminando documento:', error)
+    }
+  }
+
+  const handleActualizarPrecio = async (id, nuevoPrecio) => {
+    try {
+      await actualizarPrecio(id, nuevoPrecio)
+      setEditingDoc(null)
+      loadDocumentos()
+    } catch (error) {
+      console.error('Error actualizando precio:', error)
+    }
+  }
+
+  const handleActualizarMensaje = async (id, nuevoMensaje) => {
+    try {
+      await actualizarMensaje(id, nuevoMensaje)
+      setEditingDoc(null)
+      loadDocumentos()
+    } catch (error) {
+      console.error('Error actualizando mensaje:', error)
+    }
+  }
+
+  const handleReplaceClick = (docId) => {
+    setReplacingPdf(docId)
+    // Disparar el input file cuando se establece el id
+    setTimeout(() => {
+      if (fileInputRef.current) {
+        fileInputRef.current.click()
+      }
+    }, 0)
+  }
+
+  const handleFileSelected = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !replacingPdf) return
+
+    try {
+      // Buscar el documento actual para obtener sus datos
+      const docActual = documentos.find(d => d.id === replacingPdf)
+      if (!docActual) return
+
+      // Primero eliminar el documento anterior
+      await eliminarDocumento(replacingPdf)
+      
+      // Luego subir el nuevo documento con los mismos datos
+      await subirDocumento(
+        empresaId,
+        file,
+        docActual.campania_id || '',
+        docActual.mensaje_entrega || '',
+        docActual.precio || 0
+      )
+      
+      // Limpiar y recargar
+      setReplacingPdf(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      loadDocumentos()
+      
+    } catch (error) {
+      console.error('Error reemplazando PDF:', error)
+      alert('Error al reemplazar el PDF. Por favor intenta de nuevo.')
+    }
+  }
+
+  if (loading) return <div className="campanas__loader">Cargando campañas...</div>
+
+  return (
+    <div className="campanas">
+      <div className="campanas__header">
+        <h1 className="campanas__title">Campañas</h1>
+        <button className="campanas__btn-primary" onClick={() => setShowModal(true)}>
+          <Upload size={18} />
+          Nueva Campaña
+        </button>
+      </div>
+
+      {/* Input oculto para reemplazar PDF */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileSelected}
+        accept=".pdf,.odf"
+        style={{ display: 'none' }}
+      />
+
+      <div className="campanas__table-wrap">
+        <table className="campanas__table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Campaña</th>
+              <th>Precio</th>
+              <th>Mensaje de Entrega</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {documentos.map((doc) => (
+              <tr key={doc.id} className="animate-fade-in">
+                <td className="campanas__td-id">{doc.id}</td>
+                <td className="campanas__td-name">{doc.nombre}</td>
+                <td>
+                  <span className="campanas__badge">{doc.campania_id || '—'}</span>
+                </td>
+                <td className="campanas__td-price">
+                  {editingDoc?.id === doc.id && editingDoc?.tipo === 'precio' ? (
+                    <div className="campanas__edit-price">
+                      <input
+                        type="number"
+                        step="0.01"
+                        defaultValue={doc.precio || 0}
+                        id={`price-${doc.id}`}
+                        className="campanas__input"
+                      />
+                      <button
+                        className="campanas__btn-icon campanas__btn-save"
+                        onClick={() => {
+                          const input = document.getElementById(`price-${doc.id}`)
+                          handleActualizarPrecio(doc.id, parseFloat(input.value))
+                        }}
+                      >
+                        <Save size={14} />
+                      </button>
+                      <button
+                        className="campanas__btn-icon campanas__btn-cancel"
+                        onClick={() => setEditingDoc(null)}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      ${doc.precio?.toFixed(2) || '0.00'}
+                      <button
+                        className="campanas__btn-icon campanas__btn-edit"
+                        onClick={() => setEditingDoc({ id: doc.id, tipo: 'precio', valor: doc.precio || 0 })}
+                        title="Editar precio"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                    </>
+                  )}
+                </td>
+                <td className="campanas__td-message">
+                  {editingDoc?.id === doc.id && editingDoc?.tipo === 'mensaje' ? (
+                    <div className="campanas__edit-message">
+                      <textarea
+                        defaultValue={doc.mensaje_entrega || ''}
+                        id={`msg-${doc.id}`}
+                        className="campanas__textarea"
+                        rows={2}
+                      />
+                      <div className="campanas__edit-actions">
+                        <button
+                          className="campanas__btn-icon campanas__btn-save"
+                          onClick={() => {
+                            const textarea = document.getElementById(`msg-${doc.id}`)
+                            handleActualizarMensaje(doc.id, textarea.value)
+                          }}
+                        >
+                          <Save size={14} />
+                        </button>
+                        <button
+                          className="campanas__btn-icon campanas__btn-cancel"
+                          onClick={() => setEditingDoc(null)}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {doc.mensaje_entrega ? doc.mensaje_entrega.substring(0, 30) + '...' : '—'}
+                      <button
+                        className="campanas__btn-icon campanas__btn-edit"
+                        onClick={() => setEditingDoc({ id: doc.id, tipo: 'mensaje', valor: doc.mensaje_entrega || '' })}
+                        title="Editar mensaje"
+                      >
+                        <MessageSquare size={14} />
+                      </button>
+                    </>
+                  )}
+                </td>
+                <td>{new Date(doc.fecha_subida).toLocaleDateString()}</td>
+                <td>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      className="campanas__btn-icon campanas__btn-replace"
+                      onClick={() => handleReplaceClick(doc.id)}
+                      title="Reemplazar PDF"
+                    >
+                      <File size={16} />
+                    </button>
+                    <button
+                      className="campanas__btn-icon campanas__btn-delete"
+                      onClick={() => handleEliminar(doc.id)}
+                      title="Eliminar"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal para nueva campaña */}
+      {showModal && (
+        <div className="campanas__modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="campanas__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="campanas__modal-header">
+              <h2>Nueva Campaña</h2>
+              <button className="campanas__btn-close" onClick={() => setShowModal(false)}>×</button>
+            </div>
+            <div className="campanas__modal-body">
+              <div className="campanas__form-group">
+                <label>Archivo PDF</label>
+                <input
+                  type="file"
+                  accept=".pdf,.odf"
+                  onChange={(e) => setFormData({ ...formData, archivo: e.target.files?.[0] || null })}
+                  className="campanas__file-input"
+                />
+              </div>
+              <div className="campanas__form-group">
+                <label>ID de Campaña</label>
+                <input
+                  type="text"
+                  value={formData.campania_id}
+                  onChange={(e) => setFormData({ ...formData, campania_id: e.target.value })}
+                  placeholder="ej: lettering, reposteria"
+                  className="campanas__input"
+                />
+              </div>
+              <div className="campanas__form-group">
+                <label>Precio</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.precio}
+                  onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
+                  placeholder="0.00"
+                  className="campanas__input"
+                />
+              </div>
+              <div className="campanas__form-group">
+                <label>Mensaje de Entrega</label>
+                <textarea
+                  value={formData.mensaje_entrega}
+                  onChange={(e) => setFormData({ ...formData, mensaje_entrega: e.target.value })}
+                  placeholder="Mensaje que se enviará al aprobar el pago..."
+                  rows={4}
+                  className="campanas__textarea"
+                />
+              </div>
+            </div>
+            <div className="campanas__modal-footer">
+              <button className="campanas__btn-secondary" onClick={() => setShowModal(false)}>
+                Cancelar
+              </button>
+              <button
+                className="campanas__btn-primary"
+                onClick={handleSubir}
+                disabled={!formData.archivo || !formData.campania_id || !formData.mensaje_entrega || !formData.precio}
+              >
+                Subir Campaña
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+
+-------------------------------------------------------------------------------------------------
+
+.campanas {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.campanas__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.campanas__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.campanas__btn-primary {
+  background: var(--accent-purple);
+  color: white;
+  border: none;
+  padding: 0.4rem 1rem;  /* ← ESTE ES EL CAMBIO */
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.85rem;     /* ← ESTE ES EL CAMBIO */
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  width: fit-content; /* Esto evita que crezca horizontalmente */
+  flex-shrink: 0;
+}
+
+.campanas__btn-primary:hover:not(:disabled) {
+  background: #8b5cf6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.campanas__btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.campanas__btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.campanas__btn-secondary:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.campanas__btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.campanas__btn-edit:hover {
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--accent-purple);
+}
+
+.campanas__btn-save {
+  color: var(--accent-green);
+}
+
+.campanas__btn-save:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent-green);
+}
+
+.campanas__btn-cancel {
+  color: #ef4444;
+}
+
+.campanas__btn-cancel:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.campanas__btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* Nuevo estilo para el botón de reemplazar PDF */
+.campanas__btn-replace:hover {
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--accent-purple);
+}
+
+.campanas__table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.campanas__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.campanas__table thead th {
+  text-align: left;
+  padding: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.campanas__table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.campanas__table tbody tr:hover {
+  background: rgba(124, 58, 237, 0.04);
+}
+
+.campanas__table tbody td {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.06);
+}
+
+.campanas__td-id {
+  font-family: monospace;
+  color: var(--text-muted) !important;
+}
+
+.campanas__td-name {
+  font-weight: 600;
+  color: var(--text-primary) !important;
+}
+
+.campanas__td-price {
+  font-weight: 600;
+  color: var(--accent-gold) !important;
+}
+
+.campanas__td-message {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.campanas__badge {
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--accent-purple);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.campanas__edit-price,
+.campanas__edit-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.campanas__edit-message {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.campanas__edit-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.campanas__input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 6px 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  width: 100px;
+}
+
+.campanas__input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+}
+
+.campanas__textarea {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  width: 100%;
+  resize: vertical;
+}
+
+.campanas__textarea:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+}
+
+/* Modal - ya está correcto, solo reforzamos */
+.campanas__modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.campanas__modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  /* Aseguramos que el modal no tenga márgenes que lo desplacen */
+  margin: auto;
+  margin-top: -25px;
+}
+
+.campanas__modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.campanas__modal-header h2 {
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.campanas__btn-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 32px;        /* Dale un tamaño fijo */
+  height: 32px;
+  flex-shrink: 0;     /* Clave para que el flex no lo deforme */
+}
+
+.campanas__btn-close:hover {
+  color: var(--text-primary);
+}
+
+.campanas__modal-body {
+  padding: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.campanas__form-group {
+  margin-bottom: 1.2rem;
+}
+
+.campanas__form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.campanas__file-input {
+  background: var(--bg-primary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  width: 100%;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.campanas__file-input:hover {
+  border-color: var(--accent-purple);
+}
+
+.campanas__modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 0.8rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.campanas__loader {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* Input oculto para reemplazar PDF */
+.campanas__file-input-hidden {
+  display: none;
+}
+
+-------------------------------------------------------------------------------------------
+/* Tabla - completamente aislada */
+.tabla-wrapper {
+  all: initial;
+  display: block;
+  margin-top: 24px;
+  background: #1a1a1f;
+  border: 1px solid #2a2a30;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  width: 100%;
+}
+
+.tabla {
+  all: initial;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+  font-family: inherit;
+  table-layout: fixed;
+}
+
+.tabla th {
+  all: initial;
+  text-align: left;
+  padding: 12px 16px;
+  color: #9a9aa5;
+  font-weight: 500;
+  font-size: 12px;
+  border-bottom: 1px solid #2a2a30;
+  font-family: inherit;
+  display: table-cell;
+}
+
+.tabla td {
+  all: initial;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2a30;
+  color: #e8e8ed;
+  font-size: 13px;
+  font-family: inherit;
+  display: table-cell;
+}
+
+/* Anchos de columna */
+.tabla th:nth-child(1) { width: 25%; } /* Archivo */
+.tabla th:nth-child(2) { width: 10%; } /* Campaña */
+.tabla th:nth-child(3) { width: 8%; }  /* Precio */
+.tabla th:nth-child(4) { width: 37%; } /* Mensaje */
+.tabla th:nth-child(5) { width: 10%; } /* Fecha */
+.tabla th:nth-child(6) { width: 10%; } /* Acciones */
+
+.tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla tr:hover {
+  background: #222228;
+}
+
+.celda-archivo {
+  all: initial;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e8e8ed;
+  font-family: inherit;
+  padding: 12px 16px;
+}
+
+.celda-archivo svg {
+  color: #5a5a66;
+  flex-shrink: 0;
+}
+
+.celda-precio {
+  all: initial;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #c4c4cf;
+  font-family: inherit;
+  padding: 12px 16px;
+}
+
+.celda-precio span {
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.celda-mensaje {
+  all: initial;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #c4c4cf;
+  font-family: inherit;
+  padding: 12px 16px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.celda-mensaje span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acciones-tabla {
+  all: initial;
+  display: flex;
+  gap: 4px;
+  font-family: inherit;
+}
+
+.btn-icono {
+  all: initial;
+  background: transparent;
+  border: none;
+  color: #7a7a85;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.btn-icono:hover {
+  background: #2c2c30;
+  color: #ffffff;
+}
