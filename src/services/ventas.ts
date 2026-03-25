@@ -50,9 +50,13 @@ export async function listarVentas(params?: {
     })
   }
   
-  const url = `${API_URL}/api/v1/ventas?${queryParams.toString()}`
+  const url = `${API_URL}/api/v1/ventas/?${queryParams.toString()}`
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(url, {
-    headers: authHeader()
+    headers
   })
   
   if (!res.ok) throw new Error('Error al cargar ventas')
@@ -60,8 +64,12 @@ export async function listarVentas(params?: {
 }
 
 export async function obtenerVenta(id: number): Promise<Venta> {
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(`${API_URL}/api/v1/ventas/${id}`, {
-    headers: authHeader()
+    headers
   })
   
   if (!res.ok) throw new Error('Error al cargar la venta')
@@ -85,8 +93,12 @@ export async function obtenerEstadisticas(params?: {
   }
   
   const url = `${API_URL}/api/v1/ventas/estadisticas/resumen?${queryParams.toString()}`
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(url, {
-    headers: authHeader()
+    headers
   })
   
   if (!res.ok) throw new Error('Error al cargar estadísticas')
@@ -99,7 +111,7 @@ export function agruparVentasPorDia(ventas: Venta[]): { fecha: string; total: nu
   ventas.forEach(venta => {
     if (venta.estado !== 'confirmada') return
     
-    const fecha = venta.fecha_venta.split('T')[0] // YYYY-MM-DD
+    const fecha = venta.fecha_venta.split('T')[0]
     if (!agrupado[fecha]) {
       agrupado[fecha] = { total: 0, cantidad: 0 }
     }

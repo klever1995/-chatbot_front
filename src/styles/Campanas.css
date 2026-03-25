@@ -3,7 +3,7 @@
   all: initial;
   display: block;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -216,10 +216,11 @@
   color: #111;
 }
 
-/* Tabla */
+/* Tabla - Mismo estilo que Ventas */
 .camp-tabla-contenedor {
   background: #111216;
   border: 1px solid #2a2a30;
+  border-radius: 8px;
   width: 100%;
   margin: 20px 0;
   overflow-x: auto;
@@ -230,7 +231,7 @@
   border-collapse: collapse;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 14px;
-  min-width: 900px;
+  min-width: 1000px;
 }
 
 .camp-tabla th {
@@ -243,34 +244,33 @@
 }
 
 .camp-tabla td {
-  padding: 16px;
+  padding: 14px 16px;
   color: #e0e2e8;
   border-bottom: 1px solid #2a2a30;
-  white-space: nowrap;
-  height: 60px;
-  line-height: 28px;
   vertical-align: middle;
 }
 
-.camp-tabla tr:last-child td {
-  border-bottom: none;
-}
-
-.camp-tabla tr:hover {
+.camp-tabla tbody tr:hover {
   background: #1a1c24;
 }
 
-.camp-tabla th:nth-child(1) { width: 25%; }
+.camp-tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ANCHOS CON 7 COLUMNAS */
+.camp-tabla th:nth-child(1) { width: 20%; }
 .camp-tabla th:nth-child(2) { width: 10%; }
 .camp-tabla th:nth-child(3) { width: 8%; }
-.camp-tabla th:nth-child(4) { width: 37%; }
+.camp-tabla th:nth-child(4) { width: 28%; }
 .camp-tabla th:nth-child(5) { width: 10%; }
-.camp-tabla th:nth-child(6) { width: 10%; }
+.camp-tabla th:nth-child(6) { width: 14%; }
+.camp-tabla th:nth-child(7) { width: 10%; }
 
+/* Contenedores de celdas */
 .camp-archivo {
-  display: flex;
+  height: 100%;
   align-items: center;
-  gap: 8px;
 }
 
 .camp-precio {
@@ -278,18 +278,59 @@
   align-items: center;
   gap: 8px;
   justify-content: space-between;
+  white-space: nowrap;
 }
 
 .camp-mensaje {
   max-width: 100%;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .camp-acciones {
+  height: 100%;
+  align-items: center;
+}
+
+/* Estilos para la columna de enlace WhatsApp */
+.camp-enlace {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.camp-enlace-container {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.camp-enlace-texto {
+  font-size: 12px;
+  color: #9aa0b0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  font-family: monospace;
+}
+
+.camp-btn-copiar {
+  flex-shrink: 0;
+}
+
+.camp-btn-copiar:hover {
+  color: #3b82f6;
+}
+
+.camp-sin-enlace {
+  color: #5a5a66;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 /* Botones icono */
@@ -307,7 +348,7 @@
   background: transparent;
   border: none;
   color: #9aa0b0;
-  margin: 0 0 0 4px;
+  margin: 0;
 }
 
 .camp-btn-icono:hover {
@@ -325,6 +366,7 @@
   justify-content: space-between;
   width: 100%;
   gap: 4px;
+  white-space: nowrap;
 }
 
 .camp-display-container span {
@@ -349,7 +391,7 @@
   color: #ffffff;
   font-size: 14px;
   padding: 4px 8px;
-  height: 28px;
+  height: 32px;
 }
 
 .camp-edit-input-mensaje {
@@ -360,7 +402,7 @@
   color: #ffffff;
   font-size: 14px;
   padding: 4px 8px;
-  height: 28px;
+  height: 32px;
 }
 
 .camp-edit-input:focus {
@@ -369,9 +411,9 @@
 }
 
 .camp-mensaje-texto {
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   flex: 1;
 }
 

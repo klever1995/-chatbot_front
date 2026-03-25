@@ -12,8 +12,12 @@ export interface Documento {
 }
 
 export async function listarDocumentos(empresaId: number): Promise<Documento[]> {
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(`${API_URL}/api/v1/documentos/listar/${empresaId}`, {
-    headers: authHeader()
+    headers
   })
   if (!res.ok) throw new Error('Error al cargar documentos')
   return res.json()
@@ -32,9 +36,14 @@ export async function subirDocumento(
   formData.append('mensaje_entrega', mensaje_entrega)
   formData.append('precio', precio.toString())
 
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
+
   const res = await fetch(`${API_URL}/api/v1/documentos/subir/${empresaId}`, {
     method: 'POST',
-    headers: authHeader(),
+    headers,
     body: formData
   })
 
@@ -47,9 +56,13 @@ export async function subirDocumento(
 }
 
 export async function eliminarDocumento(id: number): Promise<void> {
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(`${API_URL}/api/v1/documentos/${id}`, {
     method: 'DELETE',
-    headers: authHeader()
+    headers
   })
   if (!res.ok) throw new Error('Error al eliminar documento')
 }
@@ -58,9 +71,14 @@ export async function actualizarPrecio(id: number, precio: number): Promise<void
   const formData = new FormData()
   formData.append('precio', precio.toString())
   
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
+
   const res = await fetch(`${API_URL}/api/v1/documentos/${id}/precio`, {
     method: 'PUT',
-    headers: authHeader(),
+    headers,
     body: formData
   })
   if (!res.ok) throw new Error('Error al actualizar precio')
@@ -70,9 +88,14 @@ export async function actualizarMensaje(id: number, mensaje_entrega: string): Pr
   const formData = new FormData()
   formData.append('mensaje_entrega', mensaje_entrega)
   
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
+
   const res = await fetch(`${API_URL}/api/v1/documentos/${id}/mensaje`, {
     method: 'PUT',
-    headers: authHeader(),
+    headers,
     body: formData
   })
   if (!res.ok) throw new Error('Error al actualizar mensaje')

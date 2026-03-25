@@ -83,6 +83,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      'ngrok-skip-browser-warning': 'true'
     },
     body: formData
   })
@@ -104,7 +105,8 @@ export async function getCurrentUser(): Promise<Usuario> {
 
   const response = await fetch(`${API_URL}/api/v1/usuarios/me`, {
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'ngrok-skip-browser-warning': 'true'
     }
   })
 
@@ -124,5 +126,46 @@ export function logout(): void {
 // Header de autorización para usar en fetch/axios
 export function authHeader(): HeadersInit {
   const token = getToken()
-  return token ? { 'Authorization': `Bearer ${token}` } : {}
+  const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {}
+  return {
+    ...headers,
+    'ngrok-skip-browser-warning': 'true'
+  }
+}
+
+// Login con Google
+export async function loginGoogle(credential: string): Promise<LoginResponse> {
+  const response = await fetch(`${API_URL}/api/v1/auth/google`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    },
+    body: JSON.stringify({ credential })
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.detail || 'Error al iniciar sesión con Google')
+  }
+
+  const data = await response.json()
+  setToken(data.access_token)
+  return data
+}
+
+// Obtener teléfono de la empresa del token actual
+export function getEmpresaTelefonoFromToken(): string | null {
+  const token = getToken()
+  if (!token) return null
+  const decoded = decodeToken(token)
+  return decoded?.empresa_telefono || null
+}
+
+// Obtener nombre de la empresa del token actual
+export function getEmpresaNombreFromToken(): string | null {
+  const token = getToken()
+  if (!token) return null
+  const decoded = decodeToken(token)
+  return decoded?.empresa_nombre || null
 }

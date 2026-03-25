@@ -1,29 +1,57 @@
-import { Routes, Route, NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import Campanas from './pages/Campanas'
 import Ventas from './pages/Ventas'
 import Configuracion from './pages/Configuracion'
+import { getEmpresaNombreFromToken } from './services/auth'
 import './Principal.css'
 
 export default function Principal() {
+  const [seccionActual, setSeccionActual] = useState('dashboard')
+  const navigate = useNavigate()
+
+  const empresaNombre = getEmpresaNombreFromToken() || 'Sublimados Admin'
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token')
+    navigate('/login')
+  }
+
+  const renderSeccion = () => {
+    switch(seccionActual) {
+      case 'dashboard':
+        return <Dashboard />
+      case 'campanas':
+        return <Campanas />
+      case 'ventas':
+        return <Ventas />
+      case 'configuracion':
+        return <Configuracion />
+      default:
+        return <Dashboard />
+    }
+  }
+
   return (
     <div className="principal-container">
       <header className="principal-header">
-        <span className="principal-logo">📊 Sublimados Admin</span>
+        <span className="principal-logo">📊 {empresaNombre}</span>
+
         <nav className="principal-nav">
-          <NavLink to="/dashboard" end className={({ isActive }) => isActive ? 'active' : ''}>Dashboard</NavLink>
-          <NavLink to="/dashboard/campanas" className={({ isActive }) => isActive ? 'active' : ''}>Campañas</NavLink>
-          <NavLink to="/dashboard/ventas" className={({ isActive }) => isActive ? 'active' : ''}>Ventas</NavLink>
-          <NavLink to="/dashboard/configuracion" className={({ isActive }) => isActive ? 'active' : ''}>Configuración</NavLink>
+          <a onClick={() => setSeccionActual('dashboard')} className={seccionActual === 'dashboard' ? 'active' : ''}>Dashboard</a>
+          <a onClick={() => setSeccionActual('ventas')} className={seccionActual === 'ventas' ? 'active' : ''}>Ventas</a>
+          <a onClick={() => setSeccionActual('campanas')} className={seccionActual === 'campanas' ? 'active' : ''}>Campañas</a>
         </nav>
+
+        <div className="header-right">
+          <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+        </div>
+
       </header>
+
       <main className="principal-content">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/campanas" element={<Campanas />} />
-          <Route path="/ventas" element={<Ventas />} />
-          <Route path="/configuracion" element={<Configuracion />} />
-        </Routes>
+        {renderSeccion()}
       </main>
     </div>
   )

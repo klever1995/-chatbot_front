@@ -22,8 +22,12 @@ export interface EmpresaUpdate {
 }
 
 export async function obtenerEmpresa(id: number): Promise<Empresa> {
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(`${API_URL}/api/v1/empresas/${id}`, {
-    headers: authHeader()
+    headers
   })
   
   if (!res.ok) throw new Error('Error al cargar la empresa')
@@ -31,12 +35,14 @@ export async function obtenerEmpresa(id: number): Promise<Empresa> {
 }
 
 export async function actualizarEmpresa(id: number, data: EmpresaUpdate): Promise<Empresa> {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(`${API_URL}/api/v1/empresas/${id}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeader()
-    },
+    headers,
     body: JSON.stringify(data)
   })
   
@@ -49,8 +55,12 @@ export async function actualizarEmpresa(id: number, data: EmpresaUpdate): Promis
 }
 
 export async function listarEmpresas(skip: number = 0, limit: number = 100): Promise<Empresa[]> {
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
   const res = await fetch(`${API_URL}/api/v1/empresas?skip=${skip}&limit=${limit}`, {
-    headers: authHeader()
+    headers
   })
   
   if (!res.ok) throw new Error('Error al listar empresas')

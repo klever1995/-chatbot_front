@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Search, Filter, ChevronLeft, ChevronRight, Download, X } from 'lucide-react'
 import { listarVentas } from '../services/ventas'
 import { getEmpresaIdFromToken } from '../services/auth'
+import { useSocket } from '../hooks/useSocket'
 import '../styles/Ventas.css'
 
 export default function Ventas() {
@@ -21,10 +22,30 @@ export default function Ventas() {
   const [showFiltros, setShowFiltros] = useState(false)
   const [campanas, setCampanas] = useState([])
 
+  // WebSocket hook
+  const { isConnected, joinEmpresa, onNuevaVenta } = useSocket()
+
   // Cargar campañas disponibles UNA SOLA VEZ al inicio
   useEffect(() => {
     cargarCampanasDisponibles()
   }, [])
+
+  // Conectar WebSocket y unirse a la sala de la empresa
+  useEffect(() => {
+    const empresaId = getEmpresaIdFromToken()
+    if (empresaId && isConnected) {
+      joinEmpresa(empresaId)
+    }
+  }, [isConnected, joinEmpresa])
+
+  // Escuchar evento de nueva venta (actualización silenciosa)
+  useEffect(() => {
+    const unsubscribe = onNuevaVenta((nuevaVenta) => {
+      console.log('📢 Nueva venta recibida en tiempo real (Ventas):', nuevaVenta)
+      cargarVentas(true) // true = actualización silenciosa sin loading
+    })
+    return unsubscribe
+  }, [onNuevaVenta])
 
   // Cargar ventas cuando cambian filtros o paginación
   useEffect(() => {
@@ -34,7 +55,6 @@ export default function Ventas() {
   const cargarCampanasDisponibles = async () => {
     try {
       const empresaId = getEmpresaIdFromToken()
-      // Cargar ventas sin filtro de campaña para obtener todas las campañas
       const data = await listarVentas({ 
         empresa_id: empresaId, 
         limit: 1000
@@ -46,8 +66,10 @@ export default function Ventas() {
     }
   }
 
-  const cargarVentas = async () => {
-    setLoading(true)
+  const cargarVentas = async (silent = false) => {
+    if (!silent) {
+      setLoading(true)
+    }
     try {
       const empresaId = getEmpresaIdFromToken()
       
@@ -64,12 +86,13 @@ export default function Ventas() {
       const data = await listarVentas(params)
       setVentas(data)
       
-      // Como no tenemos total del backend, simulamos con la longitud
       setPaginacion(prev => ({ ...prev, total: data.length < prev.limit ? prev.skip + data.length : prev.skip + prev.limit + 1 }))
     } catch (error) {
       console.error('Error cargando ventas:', error)
     } finally {
-      setLoading(false)
+      if (!silent) {
+        setLoading(false)
+      }
     }
   }
 
@@ -94,7 +117,9 @@ export default function Ventas() {
     return (
       venta.producto_nombre?.toLowerCase().includes(busqueda) ||
       venta.campania_id?.toLowerCase().includes(busqueda) ||
-      venta.id.toString().includes(busqueda)
+      venta.cliente_telefono?.toLowerCase().includes(busqueda) ||
+      venta.cliente_nombre?.toLowerCase().includes(busqueda) ||
+      venta.cliente_id?.toString().includes(busqueda)
     )
   })
 
@@ -103,6 +128,11 @@ export default function Ventas() {
 
   return (
     <div className="ventas">
+      {/* Indicador de conexión WebSocket */}
+      <div className="socket-status" style={{ position: 'fixed', bottom: 10, right: 10, fontSize: 10, padding: '4px 8px', borderRadius: 4, background: '#1a1c24', color: isConnected ? '#10b981' : '#ef4444', zIndex: 9999 }}>
+        {isConnected ? '🟢 Tiempo real activo' : '🔴 Conectando...'}
+      </div>
+
       <div className="ventas-header">
         <h1>Ventas</h1>
         <button className="btn-filtro" onClick={() => setShowFiltros(!showFiltros)}>
@@ -116,7 +146,7 @@ export default function Ventas() {
         <Search size={18} className="search-icon" />
         <input
           type="text"
-          placeholder="Buscar por producto, campaña o ID..."
+          placeholder="Buscar por producto, campaña o cliente..."
           value={filtros.busqueda}
           onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
           className="busqueda-input"
@@ -181,12 +211,11 @@ export default function Ventas() {
             <table className="ventas-table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Teléfono</th>
                   <th>Producto</th>
                   <th>Campaña</th>
-                  <th>Cantidad</th>
                   <th>Precio Unit.</th>
-                  <th>Monto Total</th>
                   <th>Fecha</th>
                   <th>Comprobante</th>
                 </tr>
@@ -194,13 +223,12 @@ export default function Ventas() {
               <tbody>
                 {ventasFiltradas.map(venta => (
                   <tr key={venta.id}>
-                    <td className="id-col">#{venta.id}</td>
+                    <td className="cliente-col">{venta.cliente_nombre || `#${venta.cliente_id}`}</td>
+                    <td className="telefono-col">{venta.cliente_telefono || '—'}</td>
                     <td className="producto-col">{venta.producto_nombre}</td>
                     <td>{venta.campania_id || '—'}</td>
-                    <td>{venta.cantidad}</td>
                     <td>${venta.precio_unitario.toFixed(2)}</td>
-                    <td className="monto-col">${venta.monto_total.toFixed(2)}</td>
-                    <td>{new Date(venta.fecha_venta).toLocaleDateString()}</td>
+                    <td>{venta.fecha_venta.split('T')[0].split('-').reverse().join('/')}</td>
                     <td>
                       {venta.comprobante_url ? (
                         <a 

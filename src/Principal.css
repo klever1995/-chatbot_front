@@ -33,11 +33,17 @@ html, body, #root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+body {
+  margin: 0;
+  overflow: hidden; /* Evita scroll en el body */
+}
+
 .principal-container {
-  min-height: 100vh;
+  height: 100vh; /* Cambiado de min-height a height */
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);
+  overflow: hidden; /* Evita scroll en el contenedor padre */
 }
 
 .principal-header {
@@ -48,6 +54,7 @@ html, body, #root {
   align-items: center;
   gap: var(--space-2xl);
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0; /* Evita que el header se reduzca */
 }
 
 .principal-logo {
@@ -75,6 +82,7 @@ html, body, #root {
   align-items: center;
   border-bottom: 2px solid transparent;
   transition: all var(--transition-fast);
+  cursor: pointer;
 }
 
 .principal-nav a:hover {
@@ -88,6 +96,26 @@ html, body, #root {
 
 .principal-content {
   flex: 1;
-  /* padding eliminado - cada ventana maneja su propio padding */
   overflow-y: auto;
+  height: 100%; /* Asegura que ocupe el espacio restante */
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn {
+  padding: 6px 12px;
+  background: var(--accent-purple);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  opacity: 0.8;
 }

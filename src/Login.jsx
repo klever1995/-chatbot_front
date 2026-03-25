@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from './services/auth'
+import { GoogleLogin } from '@react-oauth/google'
+import { login, loginGoogle } from './services/auth'
 import './Login.css'
 
 export default function Login() {
@@ -16,8 +17,7 @@ export default function Login() {
     setError('')
 
     try {
-      await login({ username: email, password })
-      // Si el login es exitoso, redirige a dashboard
+      const response = await login({ username: email, password })
       navigate('/dashboard')
     } catch (err) {
       setError(err.message)
@@ -26,17 +26,52 @@ export default function Login() {
     }
   }
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true)
+      await loginGoogle(credentialResponse.credential)
+      navigate('/dashboard')
+    } catch (err) {
+      setError('Error al iniciar sesión con Google')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleError = () => {
+    setError('Error en la autenticación con Google')
+  }
+
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h1>📊 Sublimados Admin</h1>
-        <h2>Iniciar Sesión</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email:</label>
+    <div className="login-page">
+
+      {/* IZQUIERDA */}
+      <div className="login-branding">
+        <div className="login-branding__content">
+          <div className="login-branding__logo">A</div>
+          <h1 className="login-branding__title">Aurelia</h1>
+          <p className="login-branding__subtitle">
+            Panel de administración de ventas
+          </p>
+        </div>
+
+        <div className="login-branding__orb login-branding__orb--1" />
+        <div className="login-branding__orb login-branding__orb--2" />
+      </div>
+
+      {/* DERECHA */}
+      <div className="login-form-side">
+        <form className="login-form" onSubmit={handleSubmit}>
+
+          <div className="login-form__header">
+            <h2>Iniciar Sesión</h2>
+            <p>Ingresa tus credenciales</p>
+          </div>
+
+          {error && <div className="login-error">{error}</div>}
+
+          <div className="login-form__field">
+            <label>Email</label>
             <input
               type="email"
               value={email}
@@ -47,8 +82,8 @@ export default function Login() {
             />
           </div>
 
-          <div className="form-group">
-            <label>Contraseña:</label>
+          <div className="login-form__field">
+            <label>Contraseña</label>
             <input
               type="password"
               value={password}
@@ -59,9 +94,26 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" disabled={loading}>
+          <button className="login-btn" type="submit" disabled={loading}>
             {loading ? 'Iniciando...' : 'Ingresar'}
           </button>
+
+          <div className="login-divider">
+            <span>o</span>
+          </div>
+
+          <div className="login-google">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+              theme="outline"
+              size="large"
+              text="continue_with"
+              shape="rectangular"
+            />
+          </div>
+
         </form>
       </div>
     </div>

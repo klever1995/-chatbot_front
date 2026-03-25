@@ -24,10 +24,15 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  display: block; /* Cambiar de flex a block */
+  height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: none;
+}
+
+#root {
+  height: 100%;
+  overflow-y: auto;
 }
 
 h1 {
