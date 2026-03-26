@@ -13,10 +13,9 @@ export default function Campanas() {
   const [editValue, setEditValue] = useState('')
   const [copiedId, setCopiedId] = useState(null)
   const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState('') // 🔥 NUEVO: estado de error
+  const [uploadError, setUploadError] = useState('')
   const [form, setForm] = useState({
     archivo: null,
-    campania_id: '',
     mensaje_entrega: '',
     precio: ''
   })
@@ -42,26 +41,25 @@ export default function Campanas() {
   }
 
   const handleSubir = async () => {
-    if (!form.archivo || !form.campania_id || !form.precio) return
+    if (!form.archivo || !form.precio) return
     
     setUploading(true)
-    setUploadError('') // Limpiar error anterior
+    setUploadError('')
     try {
       const empresaId = getEmpresaIdFromToken()
       await subirDocumento(
         empresaId,
         form.archivo,
-        form.campania_id,
+        undefined,
         form.mensaje_entrega,
         parseFloat(form.precio)
       )
       setShowModal(false)
-      setForm({ archivo: null, campania_id: '', mensaje_entrega: '', precio: '' })
+      setForm({ archivo: null, mensaje_entrega: '', precio: '' })
       setUploadError('')
       cargarDocumentos()
     } catch (error) {
       console.error('Error al subir:', error)
-      // 🔥 Manejar error de documento duplicado
       if (error.message && (
           error.message.includes('duplicate key value violates unique constraint') ||
           error.message.includes('UniqueViolation') ||
@@ -140,9 +138,10 @@ export default function Campanas() {
 
   // Limpiar error al cerrar el modal
   const handleCloseModal = () => {
+    if (uploading) return  // 🔥 NO CERRAR MIENTRAS SE SUBE
     setShowModal(false)
     setUploadError('')
-    setForm({ archivo: null, campania_id: '', mensaje_entrega: '', precio: '' })
+    setForm({ archivo: null, mensaje_entrega: '', precio: '' })
   }
 
   if (loading) return <div className="campanas">Cargando...</div>
@@ -162,22 +161,22 @@ export default function Campanas() {
         <table className="camp-tabla">
           <thead>
             <tr>
-              <th>Archivo</th>
               <th>Campaña</th>
+              <th>Identificador</th>
               <th>Precio</th>
               <th>Mensaje</th>
               <th>Fecha</th>
               <th>Enlace WhatsApp</th>
               <th>Acciones</th>
-              </tr>
-            </thead>
+            </tr>
+          </thead>
           <tbody>
             {documentos.map(doc => {
               const enlace = generarEnlaceWhatsApp(doc.campania_id)
               return (
                 <tr key={doc.id}>
-                  <td className="camp-archivo">📄 {doc.nombre}   </td>
-                  <td className="camp-campania">{doc.campania_id || '—'}   </td>
+                  <td className="camp-archivo">📄 {doc.nombre}    </td>
+                  <td className="camp-campania">{doc.campania_id || '—'}    </td>
                   <td className="camp-precio">
                     {editingId === doc.id && editingType === 'precio' ? (
                       <div className="camp-edit-container">
@@ -201,7 +200,7 @@ export default function Campanas() {
                         >✎</button>
                       </div>
                     )}
-                    </td>
+                  </td>
                   <td className="camp-mensaje">
                     {editingId === doc.id && editingType === 'mensaje' ? (
                       <div className="camp-edit-container">
@@ -224,8 +223,8 @@ export default function Campanas() {
                         >✎</button>
                       </div>
                     )}
-                    </td>
-                  <td className="camp-fecha">{new Date(doc.fecha_subida).toLocaleDateString()}   </td>
+                  </td>
+                  <td className="camp-fecha">{new Date(doc.fecha_subida).toLocaleDateString()}    </td>
                   <td className="camp-enlace">
                     {enlace ? (
                       <div className="camp-enlace-container">
@@ -243,11 +242,11 @@ export default function Campanas() {
                     ) : (
                       <span className="camp-sin-enlace">—</span>
                     )}
-                    </td>
+                  </td>
                   <td className="camp-acciones">
                     <button className="camp-btn-icono" onClick={() => handleEliminar(doc.id)}>🗑️</button>
                     <button className="camp-btn-icono">📄</button>
-                    </td>
+                  </td>
                 </tr>
               )
             })}
@@ -257,14 +256,13 @@ export default function Campanas() {
 
       {/* Modal */}
       {showModal && (
-        <div className="camp-modal-overlay" onClick={handleCloseModal}>
+        <div className="camp-modal-overlay" onClick={uploading ? undefined : handleCloseModal}>
           <div className="camp-modal" onClick={e => e.stopPropagation()}>
             <div className="camp-modal-header">
               <h2>Nuevo documento</h2>
-              <button className="camp-modal-cerrar" onClick={handleCloseModal}>×</button>
+              <button className="camp-modal-cerrar" onClick={uploading ? undefined : handleCloseModal}>×</button>
             </div>
             <div className="camp-modal-body">
-              {/* 🔥 MOSTRAR ERROR SI EXISTE */}
               {uploadError && (
                 <div className="camp-error-message" style={{ marginBottom: '16px', padding: '10px', background: '#ffebee', color: '#c62828', borderRadius: '6px', fontSize: '13px' }}>
                   {uploadError}
@@ -275,20 +273,9 @@ export default function Campanas() {
                 <input 
                   type="file" 
                   accept=".pdf" 
+                  disabled={uploading}  // 🔥 BLOQUEADO MIENTRAS SUBE
                   onChange={e => {
                     setForm({...form, archivo: e.target.files[0]})
-                    setUploadError('') // Limpiar error al cambiar archivo
-                  }}
-                />
-              </div>
-              <div className="camp-campo">
-                <label>Campaña</label>
-                <input 
-                  type="text" 
-                  placeholder="ej: lettering"
-                  value={form.campania_id}
-                  onChange={e => {
-                    setForm({...form, campania_id: e.target.value})
                     setUploadError('')
                   }}
                 />
@@ -300,6 +287,7 @@ export default function Campanas() {
                   step="0.01" 
                   placeholder="0.00"
                   value={form.precio}
+                  disabled={uploading}  // 🔥 BLOQUEADO MIENTRAS SUBE
                   onChange={e => {
                     setForm({...form, precio: e.target.value})
                     setUploadError('')
@@ -312,6 +300,7 @@ export default function Campanas() {
                   rows={3} 
                   placeholder="Mensaje para el cliente..."
                   value={form.mensaje_entrega}
+                  disabled={uploading}  // 🔥 BLOQUEADO MIENTRAS SUBE
                   onChange={e => {
                     setForm({...form, mensaje_entrega: e.target.value})
                     setUploadError('')
@@ -320,11 +309,17 @@ export default function Campanas() {
               </div>
             </div>
             <div className="camp-modal-footer">
-              <button className="camp-btn-secundario" onClick={handleCloseModal}>Cancelar</button>
+              <button 
+                className="camp-btn-secundario" 
+                onClick={handleCloseModal}
+                disabled={uploading}  // 🔥 BLOQUEADO MIENTRAS SUBE
+              >
+                Cancelar
+              </button>
               <button 
                 className="camp-btn-primario" 
                 onClick={handleSubir}
-                disabled={!form.archivo || !form.campania_id || !form.precio || uploading}
+                disabled={!form.archivo || !form.precio || uploading}
               >
                 {uploading ? 'Subiendo...' : 'Subir'}
               </button>

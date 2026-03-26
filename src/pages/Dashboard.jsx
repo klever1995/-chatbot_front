@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DollarSign, Package, TrendingUp, Calendar, Star, ShoppingCart } from 'lucide-react'
 import { obtenerEstadisticas, listarVentas, agruparVentasPorDia, agruparVentasPorCampania, obtenerVentasRecientes } from '../services/ventas'
+import { listarDocumentos } from '../services/documentos'
 import { getEmpresaIdFromToken } from '../services/auth'
 import { useSocket } from '../hooks/useSocket'
 import '../styles/Dashboard.css'
@@ -15,15 +16,22 @@ export default function Dashboard() {
   const [todasLasCampanas, setTodasLasCampanas] = useState([])
   const [ventasGlobales, setVentasGlobales] = useState([])
   const [statsGlobales, setStatsGlobales] = useState(null)
+  const [documentosMap, setDocumentosMap] = useState({})
+  const [documentosList, setDocumentosList] = useState([])
 
   // WebSocket hook
   const { isConnected, joinEmpresa, onNuevaVenta } = useSocket()
 
-  // Cargar campañas disponibles y datos globales solo una vez al inicio
+  // Cargar documentos disponibles al inicio
+  useEffect(() => {
+    cargarDocumentos()
+  }, [])
+
+  // Cargar campañas disponibles y datos globales
   useEffect(() => {
     cargarCampanasDisponibles()
     cargarDatosGlobales()
-  }, [])
+  }, [documentosMap])
 
   // Conectar WebSocket y unirse a la sala de la empresa
   useEffect(() => {
@@ -40,6 +48,7 @@ export default function Dashboard() {
       cargarDatos(true)
       cargarCampanasDisponibles()
       cargarDatosGlobales()
+      cargarDocumentos()
     })
     return unsubscribe
   }, [onNuevaVenta])
@@ -49,18 +58,34 @@ export default function Dashboard() {
     cargarDatos()
   }, [filtroCampania])
 
-  const cargarCampanasDisponibles = async () => {
+  const cargarDocumentos = async () => {
     try {
       const empresaId = getEmpresaIdFromToken()
-      const ventasData = await listarVentas({ 
-        empresa_id: empresaId, 
-        limit: 1000, 
-        estado: 'confirmada' 
+      const docs = await listarDocumentos(empresaId)
+      const map = {}
+      docs.forEach(doc => {
+        if (doc.campania_id) {
+          map[doc.campania_id] = doc.nombre
+        }
       })
-      
-      const campanasUnicas = [...new Set(ventasData.map(v => v.campania_id).filter(Boolean))]
-      setTodasLasCampanas(campanasUnicas)
-      setCampanas(campanasUnicas)
+      setDocumentosMap(map)
+      setDocumentosList(docs)
+    } catch (error) {
+      console.error('Error cargando documentos:', error)
+    }
+  }
+
+  const cargarCampanasDisponibles = async () => {
+    try {
+      // 🔥 CAMBIADO: Usar documentos en lugar de ventas para obtener todas las campañas
+      const campanasConNombre = documentosList
+        .filter(doc => doc.campania_id)
+        .map(doc => ({
+          id: doc.campania_id,
+          nombre: doc.nombre
+        }))
+      setTodasLasCampanas(campanasConNombre)
+      setCampanas(campanasConNombre)
     } catch (error) {
       console.error('Error cargando campañas:', error)
     }
@@ -211,7 +236,9 @@ export default function Dashboard() {
         >
           <option value="todas">Todas las campañas</option>
           {todasLasCampanas.map(camp => (
-            <option key={camp} value={camp}>{camp}</option>
+            <option key={camp.id} value={camp.id}>
+              {camp.nombre}
+            </option>
           ))}
         </select>
       </div>
@@ -238,7 +265,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* NUEVO KPI: Ventas del día (reemplaza promedio) */}
         <div className="kpi-card">
           <div className="kpi-icon purple">
             <Calendar size={24} />
@@ -284,7 +310,7 @@ export default function Dashboard() {
             <div className="campanas-lista">
               {ventasPorCampania.map((camp, idx) => (
                 <div key={idx} className="campana-item">
-                  <span className="campana-nombre">{camp.campania}</span>
+                  <span className="campana-nombre">{documentosMap[camp.campania] || camp.campania}</span>
                   <div className="campana-barra-fondo">
                     <div 
                       className="campana-barra" 
@@ -316,7 +342,7 @@ export default function Dashboard() {
                   </text>
                 </svg>
                 <span className="porcentaje-label">Ventas</span>
-                </div>
+              </div>
               <div className="porcentaje-item">
                 <svg width="120" height="120" viewBox="0 0 40 40">
                   <circle cx="20" cy="20" r="16" fill="none" stroke="#2a2a30" strokeWidth="3" />
@@ -336,7 +362,7 @@ export default function Dashboard() {
                   </text>
                 </svg>
                 <span className="porcentaje-label">Ingresos</span>
-                </div>
+              </div>
             </div>
           )}
         </div>
@@ -349,17 +375,17 @@ export default function Dashboard() {
           <table className="tabla-recientes">
             <thead>
               <tr>
-                <th>Producto</th>
                 <th>Campaña</th>
+                <th>Identificador</th>
                 <th>Cantidad</th>
                 <th>Monto</th>
                 <th>Fecha</th>
-                </tr>
-              </thead>
+              </tr>
+            </thead>
             <tbody>
               {ventasRecientes.map(venta => (
                 <tr key={venta.id}>
-                  <td className="producto-nombre">{venta.producto_nombre}       </td>
+                  <td className="producto-nombre">{venta.producto_nombre}</td>
                   <td>{venta.campania_id || '—'}</td>
                   <td>{venta.cantidad}</td>
                   <td className="monto">${venta.monto_total.toFixed(2)}</td>

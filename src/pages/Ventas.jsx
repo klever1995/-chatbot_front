@@ -213,8 +213,8 @@ export default function Ventas() {
                 <tr>
                   <th>Cliente</th>
                   <th>Teléfono</th>
-                  <th>Producto</th>
                   <th>Campaña</th>
+                  <th>Identificador</th>
                   <th>Precio Unit.</th>
                   <th>Fecha</th>
                   <th>Comprobante</th>
