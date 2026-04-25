@@ -35,15 +35,15 @@ html, body, #root {
 
 body {
   margin: 0;
-  overflow: hidden; /* Evita scroll en el body */
+  overflow: hidden;
 }
 
 .principal-container {
-  height: 100vh; /* Cambiado de min-height a height */
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);
-  overflow: hidden; /* Evita scroll en el contenedor padre */
+  overflow: hidden;
 }
 
 .principal-header {
@@ -54,14 +54,21 @@ body {
   align-items: center;
   gap: var(--space-2xl);
   border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0; /* Evita que el header se reduzca */
+  flex-shrink: 0;
 }
 
 .principal-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   color: var(--text-primary);
   font-size: 1.2rem;
-  letter-spacing: -0.01em;
+}
+
+.principal-logo-icon {
+  height: 32px;
+  width: auto;
 }
 
 .principal-nav {
@@ -97,7 +104,7 @@ body {
 .principal-content {
   flex: 1;
   overflow-y: auto;
-  height: 100%; /* Asegura que ocupe el espacio restante */
+  height: 100%;
 }
 
 .header-right {

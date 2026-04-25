@@ -5,71 +5,146 @@
 
 /* IZQUIERDA */
 .login-branding {
-  flex: 1;
+  flex: 1.5;
   background: linear-gradient(135deg, #7C3AED, #4C1D95);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   color: white;
+  overflow: hidden;
+}
+
+/* Watermark del logo de la letra A */
+.login-branding__watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  background-image: url('/Logo-Letra.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .login-branding__content {
   text-align: center;
   z-index: 2;
+  max-width: 80%;
 }
 
 .login-branding__logo {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  background: white;
-  color: #7C3AED;
+  width: 500px;
+  height: 150px;
+  border-radius: 20px;
+  margin: 0 auto 20px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 0 auto 16px;
+  padding: 10px;
 }
 
-.login-branding__title {
-  font-size: 2.5rem;
-  font-weight: bold;
+.login-branding__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .login-branding__subtitle {
   opacity: 0.8;
   margin-top: 8px;
+  font-size: 1.1rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* decoraciones */
+/* decoraciones - más orbes y elementos */
 .login-branding__orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
 .login-branding__orb--1 {
-  width: 300px;
-  height: 300px;
+  width: 350px;
+  height: 350px;
   background: #f59e0b;
-  top: -50px;
-  left: -50px;
+  top: -100px;
+  left: -100px;
 }
 
 .login-branding__orb--2 {
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   background: #ffffff;
-  bottom: -50px;
-  right: -50px;
+  bottom: -80px;
+  right: -80px;
 }
 
-/* DERECHA */
+/* nuevos orbes decorativos */
+.login-branding__orb--3 {
+  width: 200px;
+  height: 200px;
+  background: #f59e0b;
+  top: 50%;
+  right: -50px;
+  opacity: 0.15;
+}
+
+.login-branding__orb--4 {
+  width: 150px;
+  height: 150px;
+  background: #ffffff;
+  bottom: 20%;
+  left: -50px;
+  opacity: 0.2;
+}
+
+/* patrón de fondo sutil */
+.login-branding::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 20% 40%, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* línea decorativa arriba y abajo del contenido */
+.login-branding__content::before,
+.login-branding__content::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 2px;
+  background: rgba(255,255,255,0.3);
+  margin: 30px auto;
+}
+
+.login-branding__content::before {
+  margin-bottom: 40px;
+}
+
+.login-branding__content::after {
+  margin-top: 40px;
+}
+
+/* DERECHA - sin cambios */
 .login-form-side {
-  flex: 1;
+  flex: 1.2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,10 +153,9 @@
 
 .login-form {
   width: 100%;
-  max-width: 380px;
+  max-width: 480px;
 }
 
-/* header */
 .login-form__header h2 {
   color: white;
   margin-bottom: 4px;
@@ -93,7 +167,6 @@
   margin-bottom: 20px;
 }
 
-/* inputs */
 .login-form__field {
   margin-bottom: 16px;
 }
@@ -114,7 +187,6 @@
   color: white;
 }
 
-/* botón */
 .login-btn {
   width: 100%;
   padding: 10px;
@@ -129,7 +201,6 @@
   opacity: 0.9;
 }
 
-/* error */
 .login-error {
   background: #7f1d1d;
   color: #fecaca;
@@ -138,20 +209,36 @@
   margin-bottom: 12px;
 }
 
-/* divider */
 .login-divider {
   text-align: center;
   margin: 20px 0;
   color: #94A3B8;
 }
 
-/* responsive */
 @media (max-width: 768px) {
   .login-page {
     flex-direction: column;
   }
 
   .login-branding {
-    height: 200px;
+    height: auto;
+    min-height: 300px;
+  }
+  
+  .login-branding__logo {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .login-branding__content::before,
+  .login-branding__content::after {
+    width: 40px;
+    margin: 20px auto;
+  }
+  
+  .login-branding__watermark {
+    width: 90%;
+    height: 90%;
+    opacity: 0.05;
   }
 }

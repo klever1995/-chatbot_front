@@ -47,11 +47,13 @@ export default function Login() {
 
       {/* IZQUIERDA */}
       <div className="login-branding">
+        {/* Watermark del logo de la letra A */}
+        <div className="login-branding__watermark"></div>
+        
         <div className="login-branding__content">
-          <div className="login-branding__logo">A</div>
-          <h1 className="login-branding__title">Aurelia</h1>
+          <img src="/Logo.png" alt="Aurelia" className="login-branding__logo" />
           <p className="login-branding__subtitle">
-            Panel de administración de ventas
+            Integramos tecnología y automatización para transformar la gestión de tus procesos en experiencias eficientes y confiables.
           </p>
         </div>
 

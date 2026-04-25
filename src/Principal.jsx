@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard'
 import Campanas from './pages/Campanas'
 import Ventas from './pages/Ventas'
 import Configuracion from './pages/Configuracion'
+import Pedidos from './pages/Pedidos'
+import DashboardPedidos from './pages/DashboardPedidos'
 import { getEmpresaNombreFromToken } from './services/auth'
 import './Principal.css'
 
@@ -28,6 +30,10 @@ export default function Principal() {
         return <Ventas />
       case 'configuracion':
         return <Configuracion />
+      case 'pedidos':
+        return <Pedidos />
+      case 'dashboard_pedidos':
+        return <DashboardPedidos />
       default:
         return <Dashboard />
     }
@@ -36,11 +42,16 @@ export default function Principal() {
   return (
     <div className="principal-container">
       <header className="principal-header">
-        <span className="principal-logo">📊 {empresaNombre}</span>
+        <div className="principal-logo">
+          <img src="/Logo-blanco.png" alt="Aurelia" className="principal-logo-icon" />
+          <span>{empresaNombre}</span>
+        </div>
 
         <nav className="principal-nav">
-          <a onClick={() => setSeccionActual('dashboard')} className={seccionActual === 'dashboard' ? 'active' : ''}>Dashboard</a>
+          <a onClick={() => setSeccionActual('dashboard')} className={seccionActual === 'dashboard' ? 'active' : ''}>Dashboard Ventas</a>
           <a onClick={() => setSeccionActual('ventas')} className={seccionActual === 'ventas' ? 'active' : ''}>Ventas</a>
+          <a onClick={() => setSeccionActual('dashboard_pedidos')} className={seccionActual === 'dashboard_pedidos' ? 'active' : ''}>Dashboard Pedidos</a>
+          <a onClick={() => setSeccionActual('pedidos')} className={seccionActual === 'pedidos' ? 'active' : ''}>Pedidos</a>
           <a onClick={() => setSeccionActual('campanas')} className={seccionActual === 'campanas' ? 'active' : ''}>Campañas</a>
         </nav>
 

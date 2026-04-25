@@ -13,6 +13,7 @@ function App() {
         <Route path="/campanas" element={<MainWindow />} />
         <Route path="/ventas" element={<MainWindow />} />
         <Route path="/configuracion" element={<MainWindow />} />
+        <Route path="/pedidos" element={<MainWindow />} />
       </Routes>
     </Router>
   )

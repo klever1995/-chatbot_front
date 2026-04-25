@@ -1,0 +1,386 @@
+/* Estilos base del componente Pedidos */
+.pedidos {
+  all: initial;
+  display: block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Header */
+.pedidos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.pedidos-header h1 {
+  all: initial;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.5;
+}
+
+/* Botón filtro */
+.btn-filtro {
+  all: initial;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #1a1c24;
+  color: #e0e2e8;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #2a2a30;
+  cursor: pointer;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.btn-filtro:hover {
+  background: #2a2a30;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+/* Barra de búsqueda */
+.busqueda-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9aa0b0;
+}
+
+.busqueda-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  background: #1a1c24;
+  border: 1px solid #2a2a30;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #e0e2e8;
+  outline: none;
+}
+
+.busqueda-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.limpiar-busqueda {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9aa0b0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.limpiar-busqueda:hover {
+  color: #ffffff;
+}
+
+/* Panel de filtros */
+.filtros-panel {
+  background: #0f0f13;
+  border: 1px solid #2a2a30;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.filtros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filtro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtro-item label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9aa0b0;
+}
+
+.filtro-item select,
+.filtro-item input {
+  background: #1a1c24;
+  border: 1px solid #2a2a30;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #e0e2e8;
+  outline: none;
+}
+
+.filtro-item select:focus,
+.filtro-item input:focus {
+  border-color: #3b82f6;
+}
+
+.filtros-acciones {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-limpiar {
+  background: transparent;
+  border: 1px solid #2a2a30;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #9aa0b0;
+  cursor: pointer;
+}
+
+.btn-limpiar:hover {
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+/* Tabla de pedidos */
+.pedidos-table-container {
+  background: #111216;
+  border: 1px solid #2a2a30;
+  border-radius: 8px;
+  width: 100%;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.pedidos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  min-width: 1000px;
+}
+
+.pedidos-table th {
+  text-align: left;
+  padding: 14px 16px;
+  background: #0f0f13;
+  color: #9aa0b0;
+  font-weight: 500;
+  border-bottom: 1px solid #2a2a30;
+  white-space: nowrap;
+}
+
+.pedidos-table td {
+  padding: 12px 16px;
+  color: #e0e2e8;
+  border-bottom: 1px solid #2a2a30;
+  vertical-align: middle;
+}
+
+.pedidos-table tbody tr:hover {
+  background: #1a1c24;
+}
+
+.pedidos-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Columnas específicas (8 columnas) */
+.cliente-col {
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.telefono-col {
+  min-width: 110px;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.campania-col {
+  min-width: 100px;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+.pedido-col {
+  min-width: 250px;
+  max-width: 350px;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+.total-col {
+  min-width: 80px;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.fecha-col {
+  min-width: 90px;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #9aa0b0;
+}
+
+.estado-col {
+  min-width: 100px;
+  white-space: nowrap;
+}
+
+.comprobante-col {
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Badges de estado */
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-badge.pendiente {
+  background: #4a3e1e;
+  color: #fbbf24;
+  border: 1px solid #f59e0b;
+}
+
+.estado-badge.confirmado {
+  background: #1e3a2a;
+  color: #4ade80;
+  border: 1px solid #22c55e;
+}
+
+.estado-badge.rechazado {
+  background: #4a1e1e;
+  color: #f87171;
+  border: 1px solid #ef4444;
+}
+
+/* Botón comprobante */
+.btn-comprobante {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #1a1c24;
+  border: 1px solid #2a2a30;
+  border-radius: 6px;
+  color: #3b82f6;
+  transition: all 0.2s;
+}
+
+.btn-comprobante:hover {
+  background: #2a2a30;
+  border-color: #3b82f6;
+}
+
+.sin-comprobante {
+  color: #5a5a66;
+  font-size: 12px;
+}
+
+/* Sin resultados */
+.sin-resultados {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9aa0b0;
+}
+
+/* Paginación */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 16px;
+}
+
+.paginacion button {
+  all: initial;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  background: #1a1c24;
+  border: 1px solid #2a2a30;
+  border-radius: 6px;
+  color: #e0e2e8;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.paginacion button:hover:not(:disabled) {
+  background: #2a2a30;
+  border-color: #3b82f6;
+}
+
+.paginacion button.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.paginacion button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9aa0b0;
+}
+
+/* Socket status */
+.socket-status {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #1a1c24;
+  z-index: 9999;
+}

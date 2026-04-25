@@ -52,7 +52,9 @@ export const useSocket = () => {
     }
   };
 
-  // Función para suscribirse al evento nueva_venta
+  // ==============================================
+  // EVENTOS PARA VENTAS (producto único)
+  // ==============================================
   const onNuevaVenta = (callback: (data: any) => void) => {
     if (socket) {
       socket.on('nueva_venta', callback);
@@ -63,10 +65,35 @@ export const useSocket = () => {
     return () => {};
   };
 
+  // ==============================================
+  // EVENTOS PARA PEDIDOS (pedido múltiple)
+  // ==============================================
+  const onNuevoPedido = (callback: (data: any) => void) => {
+    if (socket) {
+      socket.on('nuevo_pedido', callback);
+      return () => {
+        socket.off('nuevo_pedido', callback);
+      };
+    }
+    return () => {};
+  };
+
+  const onPedidoActualizado = (callback: (data: any) => void) => {
+    if (socket) {
+      socket.on('pedido_actualizado', callback);
+      return () => {
+        socket.off('pedido_actualizado', callback);
+      };
+    }
+    return () => {};
+  };
+
   return {
     socket,
     isConnected,
     joinEmpresa,
     onNuevaVenta,
+    onNuevoPedido,        // 🔥 NUEVO
+    onPedidoActualizado,  // 🔥 NUEVO
   };
 };

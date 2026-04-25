@@ -8,6 +8,7 @@ export interface Documento {
   campania_id: string | null
   mensaje_entrega: string | null
   precio: number | null
+  tipo_campania: string  // 🔥 NUEVO: "producto_unico", "pedido_multiple" o "informativo"
   total_chunks: number
 }
 
@@ -26,27 +27,28 @@ export async function listarDocumentos(empresaId: number): Promise<Documento[]> 
 export async function subirDocumento(
   empresaId: number,
   archivo: File,
-  campania_id?: string,  // 🔥 AHORA ES OPCIONAL
-  mensaje_entrega?: string,  // 🔥 TAMBIÉN LO HAGO OPCIONAL POR CONSISTENCIA
-  precio?: number  // 🔥 OPCIONAL TAMBIÉN
+  campania_id?: string,
+  mensaje_entrega?: string,
+  precio?: number,
+  tipo_campania: string = "producto_unico"  // 🔥 NUEVO: tipo de campaña
 ): Promise<Documento> {
   const formData = new FormData()
   formData.append('archivo', archivo)
   
-  // 🔥 SOLO AGREGAR CAMPANIA_ID SI VIENE Y NO ESTÁ VACÍO
   if (campania_id && campania_id.trim()) {
     formData.append('campania_id', campania_id)
   }
   
-  // 🔥 SOLO AGREGAR MENSAJE SI VIENE
   if (mensaje_entrega && mensaje_entrega.trim()) {
     formData.append('mensaje_entrega', mensaje_entrega)
   }
   
-  // 🔥 SOLO AGREGAR PRECIO SI VIENE
   if (precio !== undefined && precio !== null) {
     formData.append('precio', precio.toString())
   }
+  
+  // 🔥 NUEVO: agregar tipo_campania al formData
+  formData.append('tipo_campania', tipo_campania)
 
   const headers = {
     ...authHeader(),
@@ -111,4 +113,22 @@ export async function actualizarMensaje(id: number, mensaje_entrega: string): Pr
     body: formData
   })
   if (!res.ok) throw new Error('Error al actualizar mensaje')
+}
+
+// 🔥 NUEVA FUNCIÓN: actualizar tipo de campaña
+export async function actualizarTipoCampania(id: number, tipo_campania: string): Promise<void> {
+  const formData = new FormData()
+  formData.append('tipo_campania', tipo_campania)
+  
+  const headers = {
+    ...authHeader(),
+    'ngrok-skip-browser-warning': 'true'
+  }
+
+  const res = await fetch(`${API_URL}/api/v1/documentos/${id}/tipo-campania`, {
+    method: 'PUT',
+    headers,
+    body: formData
+  })
+  if (!res.ok) throw new Error('Error al actualizar tipo de campaña')
 }
